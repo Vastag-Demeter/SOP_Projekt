@@ -27,4 +27,12 @@ const register = async (req, res) => {
   else return res.status(500).json({ err: "A regisztrráció sikertelen!" });
 };
 
-export { register };
+const login = async (req, res) => {
+  const email = req.body.email;
+  const jelszo = req.body.jelszo;
+
+  if (!email || !jelszo)
+    return res.status(406).json({ err: "Minden adatot meg kell adni!" });
+};
+
+export { register, login };
