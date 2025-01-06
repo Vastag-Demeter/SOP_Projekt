@@ -1,18 +1,16 @@
 import express from "express";
 import { validateToken } from "../middleware/validateTokenHandler.js";
-import { addMusic, getMusic } from "../controllers/musicController.js";
-import multer from "multer";
-import path from "path";
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./elokepek/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage: storage });
+import {
+  addMusic,
+  deleteMusic,
+  getMusic,
+  updateMusic,
+} from "../controllers/musicController.js";
+import { validateHeaderValue } from "http";
+
 const router = express.Router();
-router.post("/addMusic", validateToken, upload.single("image"), addMusic);
+router.post("/addMusic", validateToken, addMusic);
 router.get("/getMusic", getMusic);
+router.delete("/deleteMusic", validateToken, deleteMusic);
+router.put("/updateMusic", validateToken, updateMusic);
 export default router;
