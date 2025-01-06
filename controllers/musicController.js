@@ -162,9 +162,7 @@ const updateMusic = async (req, res) => {
   if (!Number.isInteger(zene_id)) {
     return res.status(406).json({ err: "Az id legyen egész szám!" });
   }
-  //TODO:
-  // Ha cím, vagy az előadó változik, akkor a kép nevének
-  // is kell, mert így nem fog.
+
   if (cim !== undefined) {
     update = update_zene(zene_id, "cim", cim);
     if (update) {
@@ -242,4 +240,25 @@ const updateMusic = async (req, res) => {
 
   return res.status(201).json(eredmenyek);
 };
-export { addMusic, getMusic, deleteMusic, updateMusic };
+const bestOfArtists = async (req, res) => {
+  const [rows] = await pool.query(
+    `select * from zenek where zenek.eloado in (select nev from legjobbak);`
+  );
+  if (rows.length > 0) {
+    let sorok = [];
+    for (let i = 0; i < rows.length; i++) {
+      sorok[i] = {};
+      sorok[i].id = rows[i].id;
+      sorok[i].cim = rows[i].cim;
+      sorok[i].eloado = rows[i].eloado;
+      sorok[i].mufaj = rows[i].mufaj;
+      sorok[i].hossz = rows[i].hossz;
+      sorok[i].kiadas = rows[i].kiadas;
+      const data = await fs.readFile(rows[i].elokep);
+      sorok[i].elokep = data.toString("base64");
+    }
+
+    return res.status(200).json(sorok);
+  }
+};
+export { addMusic, getMusic, deleteMusic, updateMusic, bestOfArtists };
