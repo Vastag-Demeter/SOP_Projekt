@@ -115,9 +115,6 @@ const updateMusic = async (req, res) => {
   if (!zene_id) {
     return res.status(400).json({ err: "Adja meg a zene id-jét!" });
   }
-  // if (!Number.isInteger(zene_id)) {
-  //   return res.status(400).json({ err: "Az id legyen egész szám!" });
-  // }
   let [elozo] = await pool.query(
     `select eloado, cim, elokep from zenek where id='${zene_id}';`
   );
