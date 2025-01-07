@@ -241,11 +241,11 @@ const updateMusic = async (req, res) => {
   return res.status(201).json(eredmenyek);
 };
 const bestOfArtists = async (req, res) => {
+  let sorok = [];
   const [rows] = await pool.query(
     `select * from zenek where zenek.eloado in (select nev from legjobbak);`
   );
   if (rows.length > 0) {
-    let sorok = [];
     for (let i = 0; i < rows.length; i++) {
       sorok[i] = {};
       sorok[i].id = rows[i].id;
@@ -257,8 +257,7 @@ const bestOfArtists = async (req, res) => {
       const data = await fs.readFile(rows[i].elokep);
       sorok[i].elokep = data.toString("base64");
     }
-
-    return res.status(200).json(sorok);
   }
+  return res.status(200).json(sorok);
 };
 export { addMusic, getMusic, deleteMusic, updateMusic, bestOfArtists };

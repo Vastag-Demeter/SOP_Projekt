@@ -1,7 +1,71 @@
 openapi: 3.0.0
 info:
-  title: My API
+  title: ZeneStreaming API
   version: 1.0.0
-  description: API documentation with Swagger
+  description: A ZeneStreaming dokumentációja
 servers:
   - url: http://localhost:3000
+    description: Az éles szerver
+paths:
+  /users/register:
+    post:
+      summary: Felhasználó regisztrálása
+      description: Új felhasználó felvétele a rendszerbe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: teszt@teszt
+                nev:
+                  type: string
+                  example: Teszt Elek
+                jelszo:
+                  type: string
+                  example: 123
+
+      responses:
+        "201":
+          description: A regisztráció sikeres
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: "A regisztráció sikeres"
+        "400":
+          description: Hibás kérés (Hiányzó vagy érvénytelen adatok)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: "Nincs minden adat megadva a regisztrációhoz!"
+        "406":
+          description: Már van regisztrált felhasználó az email címmel
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Már van ilyen email címmel regisztrált felhasználó!
+        "500":
+          description: A regisztráció sikertelen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: A regisztrráció sikertelen!

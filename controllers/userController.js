@@ -10,7 +10,7 @@ const register = async (req, res) => {
 
   if (!email || !nev || !jelszo) {
     return res
-      .status(406)
+      .status(400)
       .json({ err: "Nincs minden adat megadva a regisztrációhoz!" });
   }
 
