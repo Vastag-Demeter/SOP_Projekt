@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.get("/getBests", getBests);
 router.post("/addBest", validateToken, addBest);
-router.delete("/deleteBest", validateToken, deleteBest);
+router.delete("/deleteBest/:nev", validateToken, deleteBest);
 router.put("/updateBest", validateToken, updateBest);
 router.get("/bestofartists", bestOfArtists);
 export default router;

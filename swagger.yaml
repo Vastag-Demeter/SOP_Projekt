@@ -200,28 +200,34 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
                 cim:
                   type: string
-                  example: Valami
+                  example: Zenecím
+                  description: A zene címe
                 eloado:
                   type: string
-                  example: Valaki
+                  example: Előadó
+                  description: A zene előadója
                 mufaj:
                   type: string
-                  example: POP
+                  example: Műfaj
+                  description: A zene műfaja
                 hossz:
                   type: string
                   example: 00:03:00
+                  description: A zene hossza
                 kiadas:
                   type: string
-                  example: 2024.01.01
+                  example: 2025.01.01
+                  description: A kiadás dátuma
                 elokep:
                   type: string
-                  example: Egy Base64 kód
+                  format: binary
+                  description: A feltöltendő kép
       responses:
         "201":
           description: A zene felkerült a rendszerbe.
@@ -316,19 +322,32 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
                 id:
                   type: integer
-                  example: 1
-                eloado:
-                  type: string
-                  example: Valaki
+                  description: A zene id-je
                 cim:
                   type: string
-                  example: Valami
+                  description: A zene címe
+                eloado:
+                  type: string
+                  description: A zene előadója
+                mufaj:
+                  type: string
+                  description: A zene műfaja
+                hossz:
+                  type: string
+                  description: A zene hossza
+                kiadas:
+                  type: string
+                  description: A kiadás dátuma
+                elokep:
+                  type: string
+                  format: binary
+                  description: A feltöltendő kép
       responses:
         "201":
           description: A módosítás sikeres.
@@ -450,7 +469,7 @@ paths:
     delete:
       tags:
         - Legjobbak
-      summary: Legjobb előadótörlése
+      summary: Legjobb előadó törlése
       description: Az előadó törlése a legjobbak közül.
       parameters:
         - name: nev

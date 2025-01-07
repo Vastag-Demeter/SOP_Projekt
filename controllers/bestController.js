@@ -25,7 +25,7 @@ const addBest = async (req, res) => {
     .json({ err: "Az előadó nem került fel a rendszerbe!" });
 };
 const deleteBest = async (req, res) => {
-  const nev = parseInt(req.params.nev);
+  const nev = req.params.nev;
   if (!nev) {
     return res.status(400).json({ err: "Adja meg az előadó nevét!" });
   }

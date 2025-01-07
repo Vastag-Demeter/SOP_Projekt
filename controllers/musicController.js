@@ -12,8 +12,7 @@ const addMusic = async (req, res) => {
   const mufaj = req.body.mufaj;
   const hossz = req.body.hossz;
   let kiadas = req.body.kiadas;
-  const elokep = req.body.elokep;
-
+  const elokep = req.file;
   if (!cim) return res.status(400).json({ err: "Adja meg a címét!" });
   if (!eloado) return res.status(400).json({ err: "Adja meg az előadót!" });
   if (!mufaj) return res.status(400).json({ err: "Adja meg a műfajt!" });
@@ -33,11 +32,7 @@ const addMusic = async (req, res) => {
     kiadas.getMonth() + 1
   ).padStart(2, "0")}.${String(kiadas.getDate()).padStart(2, "0")}`;
 
-  if (!elokep)
-    return res.status(400).json({ err: "Az előkép megadása kötelező!" });
-  const base64Data = elokep.replace(/^data:image\/\w+;base64/, "");
-  const binaryData = Buffer.from(base64Data, "base64");
-  const path = `./elokepek/${eloado}-${cim}.png`;
+  if (!elokep) return res.status(400).json({ err: "Töltse fel az előképet!" });
 
   let query = `select * from zenek where eloado='${eloado}' and cim='${cim}';`;
   let [rows] = await pool.query(query);
@@ -47,16 +42,7 @@ const addMusic = async (req, res) => {
       .json({ err: "Már van ilyen előadó, ilyen címmel a rendszerben!" });
 
   try {
-    fs.writeFile(path, binaryData, (err) => {
-      if (err) {
-        console.log(err);
-        return res
-          .status(500)
-          .json({ error: "Hiba történt a fájl mentésekor" });
-      }
-      console.log("A kép mentve lett");
-    });
-    query = `insert into zenek (cim, eloado, mufaj, hossz, kiadas, elokep) values ('${cim}','${eloado}','${mufaj}','${hossz}',STR_TO_DATE('${kiadas_format}', '%Y.%m.%d'),'${path}');`;
+    query = `insert into zenek (cim, eloado, mufaj, hossz, kiadas, elokep) values ('${cim}','${eloado}','${mufaj}','${hossz}',STR_TO_DATE('${kiadas_format}', '%Y.%m.%d'),'${elokep.path}');`;
     [rows] = await pool.query(query);
     if (rows.affectedRows > 0) {
       return res.status(201).json({ msg: "Sikeresen felkerült a rendszerbe!" });
@@ -70,22 +56,6 @@ const addMusic = async (req, res) => {
 const getMusic = async (req, res) => {
   let query = "select id, cim,eloado,mufaj,hossz,kiadas,elokep from zenek";
   let [rows] = await pool.query(query);
-  // if (rows.length > 0) {
-  //   let sorok = [];
-  //   for (let i = 0; i < rows.length; i++) {
-  //     sorok[i] = {};
-  //     sorok[i].id = rows[i].id;
-  //     sorok[i].cim = rows[i].cim;
-  //     sorok[i].eloado = rows[i].eloado;
-  //     sorok[i].mufaj = rows[i].mufaj;
-  //     sorok[i].hossz = rows[i].hossz;
-  //     sorok[i].kiadas = rows[i].kiadas;
-  //     const data = await fs.readFile(rows[i].elokep);
-  //     sorok[i].elokep = data.toString("base64");
-  //   }
-
-  //   return res.status(200).json(sorok);
-  // }
   return res.status(200).json(rows);
 };
 
@@ -137,61 +107,50 @@ const updateMusic = async (req, res) => {
   const eloado = req.body.eloado;
   const mufaj = req.body.mufaj;
   const hossz = req.body.hossz;
-  const kiadas = req.body.kiadas;
-  const elokep = req.body.elokep;
+  let kiadas = req.body.kiadas;
+  const elokep = req.file;
   let update;
   let eredmenyek = [];
-  let eloado_path;
-  let cim_path;
-  let file_path;
-  let base64Data;
-  let binaryData;
+
   if (!zene_id) {
     return res.status(400).json({ err: "Adja meg a zene id-jét!" });
   }
-  if (!Number.isInteger(zene_id)) {
-    return res.status(400).json({ err: "Az id legyen egész szám!" });
-  }
+  // if (!Number.isInteger(zene_id)) {
+  //   return res.status(400).json({ err: "Az id legyen egész szám!" });
+  // }
   let [elozo] = await pool.query(
     `select eloado, cim, elokep from zenek where id='${zene_id}';`
   );
   if (elozo.length == 0)
     return res.status(406).json({ err: "Nincs zene a megadott id-vel!" });
-  eloado_path = elozo[0].eloado;
-  cim_path = elozo[0].cim;
   console.log(`Az előző út: ${elozo[0].elokep}`);
-  const data = await fs.readFile(elozo[0].elokep);
-  base64Data = data.toString("base64");
-  binaryData = Buffer.from(base64Data, "base64");
 
-  if (cim !== undefined) {
+  if (cim !== undefined && cim != "") {
     update = update_zene(zene_id, "cim", cim);
     if (update) {
       eredmenyek.push("A cím frissítése sikeres!");
-      cim_path = cim;
     } else eredmenyek.push("A címet nem sikerült frissíteni!");
   }
 
-  if (eloado !== undefined) {
+  if (eloado !== undefined && eloado != "") {
     update = update_zene(zene_id, "eloado", eloado);
     if (update) {
       eredmenyek.push("Az előadó frissítése sikeres!");
-      eloado_path = eloado;
     } else eredmenyek.push("Az előadót nem sikerült frissíteni!");
   }
 
-  if (mufaj !== undefined) {
+  if (mufaj !== undefined && mufaj != "") {
     update = update_zene(zene_id, "mufaj", mufaj);
     if (update) eredmenyek.push("A műfaj frissítése sikeres!");
     else eredmenyek.push("A műfajt nem sikerült frissíteni!");
   }
-  if (hossz !== undefined && isValidTime(hossz)) {
+  if (hossz !== undefined && hossz != "" && isValidTime(hossz)) {
     update = update_zene(zene_id, "hossz", hossz);
     if (update) eredmenyek.push("A hossz frissítése sikeres!");
     else eredmenyek.push("A hosszt nem sikerült frissíteni!");
   }
 
-  if (kiadas !== undefined) {
+  if (kiadas !== undefined && kiadas != "") {
     kiadas = new Date(kiadas);
     if (isNaN(kiadas.getTime()))
       eredmenyek.push("A kiadás típusa nem megfelelő, nem lesz frissítve!");
@@ -206,10 +165,6 @@ const updateMusic = async (req, res) => {
   }
 
   if (elokep !== undefined) {
-    base64Data = elokep.replace(/^data:image\/\w+;base64/, "");
-    binaryData = Buffer.from(base64Data, "base64");
-  }
-  if (eloado !== undefined || cim !== undefined || elokep !== undefined) {
     try {
       fs.unlink(elozo[0].elokep, (err) => {
         if (err) {
@@ -217,18 +172,8 @@ const updateMusic = async (req, res) => {
           return res.status(500).json("Hiba a fájl törlésekor!");
         }
       });
-
-      file_path = `./elokepek/${eloado_path}-${cim_path}.png`;
-      fs.writeFile(file_path, binaryData, (err) => {
-        if (err) {
-          console.log(err);
-          return res
-            .status(500)
-            .json({ err: "Hiba történt a fájl mentésekor" });
-        }
-      });
       const [rows] = await pool.query(
-        `update zenek set elokep='${file_path}' where id='${zene_id}';`
+        `update zenek set elokep='${elokep.path}' where id='${zene_id}';`
       );
       if (rows.affectedRows > 0)
         eredmenyek.push("Az előkép frissítése sikeres!");
