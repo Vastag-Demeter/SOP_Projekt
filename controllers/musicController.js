@@ -14,27 +14,27 @@ const addMusic = async (req, res) => {
   let kiadas = req.body.kiadas;
   const elokep = req.body.elokep;
 
-  if (!cim) return res.status(406).json({ err: "Adja meg a címét!" });
-  if (!eloado) return res.status(406).json({ err: "Adja meg az előadót!" });
-  if (!mufaj) return res.status(406).json({ err: "Adja meg a műfajt!" });
+  if (!cim) return res.status(400).json({ err: "Adja meg a címét!" });
+  if (!eloado) return res.status(400).json({ err: "Adja meg az előadót!" });
+  if (!mufaj) return res.status(400).json({ err: "Adja meg a műfajt!" });
   if (!hossz)
-    return res.status(406).json({ err: "A hossz megadása kötelező!" });
+    return res.status(400).json({ err: "A hossz megadása kötelező!" });
   if (!(await isValidTime(hossz)))
     return res
-      .status(406)
+      .status(400)
       .json({ err: "A hossz formátuma, nem megfelelő(HH:MM:SS)!" });
 
   if (!kiadas)
-    return res.status(406).json("A kiadás idejének megadása kötelező!");
+    return res.status(400).json("A kiadás idejének megadása kötelező!");
   kiadas = new Date(kiadas);
   if (isNaN(kiadas.getTime()))
-    return res.status(406).json({ err: "A kiadás formátuma nem megfelelő!" });
+    return res.status(400).json({ err: "A kiadás formátuma nem megfelelő!" });
   const kiadas_format = `${kiadas.getFullYear()}.${String(
     kiadas.getMonth() + 1
   ).padStart(2, "0")}.${String(kiadas.getDate()).padStart(2, "0")}`;
 
   if (!elokep)
-    return res.status(406).json({ err: "Az előkép megadása kötelező!" });
+    return res.status(400).json({ err: "Az előkép megadása kötelező!" });
   const base64Data = elokep.replace(/^data:image\/\w+;base64/, "");
   const binaryData = Buffer.from(base64Data, "base64");
   const path = `./elokepek/${eloado}-${cim}.png`;
@@ -70,31 +70,32 @@ const addMusic = async (req, res) => {
 const getMusic = async (req, res) => {
   let query = "select id, cim,eloado,mufaj,hossz,kiadas,elokep from zenek";
   let [rows] = await pool.query(query);
-  if (rows.length > 0) {
-    let sorok = [];
-    for (let i = 0; i < rows.length; i++) {
-      sorok[i] = {};
-      sorok[i].id = rows[i].id;
-      sorok[i].cim = rows[i].cim;
-      sorok[i].eloado = rows[i].eloado;
-      sorok[i].mufaj = rows[i].mufaj;
-      sorok[i].hossz = rows[i].hossz;
-      sorok[i].kiadas = rows[i].kiadas;
-      const data = await fs.readFile(rows[i].elokep);
-      sorok[i].elokep = data.toString("base64");
-    }
+  // if (rows.length > 0) {
+  //   let sorok = [];
+  //   for (let i = 0; i < rows.length; i++) {
+  //     sorok[i] = {};
+  //     sorok[i].id = rows[i].id;
+  //     sorok[i].cim = rows[i].cim;
+  //     sorok[i].eloado = rows[i].eloado;
+  //     sorok[i].mufaj = rows[i].mufaj;
+  //     sorok[i].hossz = rows[i].hossz;
+  //     sorok[i].kiadas = rows[i].kiadas;
+  //     const data = await fs.readFile(rows[i].elokep);
+  //     sorok[i].elokep = data.toString("base64");
+  //   }
 
-    return res.status(200).json(sorok);
-  }
+  //   return res.status(200).json(sorok);
+  // }
+  return res.status(200).json(rows);
 };
 
 const deleteMusic = async (req, res) => {
-  const zene_id = req.body.id;
+  const zene_id = parseInt(req.params.id);
   if (!zene_id) {
-    return res.status(406).json({ err: "Adja meg a zene id-jét!" });
+    return res.status(400).json({ err: "Adja meg a zene id-jét!" });
   }
   if (!Number.isInteger(zene_id)) {
-    return res.status(406).json({ err: "Az id legyen egész szám!" });
+    return res.status(400).json({ err: "Az id legyen egész szám!" });
   }
   let query = `select elokep from zenek where id='${zene_id}'`;
   let [rows] = await pool.query(query);
@@ -145,6 +146,12 @@ const updateMusic = async (req, res) => {
   let file_path;
   let base64Data;
   let binaryData;
+  if (!zene_id) {
+    return res.status(400).json({ err: "Adja meg a zene id-jét!" });
+  }
+  if (!Number.isInteger(zene_id)) {
+    return res.status(400).json({ err: "Az id legyen egész szám!" });
+  }
   let [elozo] = await pool.query(
     `select eloado, cim, elokep from zenek where id='${zene_id}';`
   );
@@ -156,12 +163,6 @@ const updateMusic = async (req, res) => {
   const data = await fs.readFile(elozo[0].elokep);
   base64Data = data.toString("base64");
   binaryData = Buffer.from(base64Data, "base64");
-  if (!zene_id) {
-    return res.status(406).json({ err: "Adja meg a zene id-jét!" });
-  }
-  if (!Number.isInteger(zene_id)) {
-    return res.status(406).json({ err: "Az id legyen egész szám!" });
-  }
 
   if (cim !== undefined) {
     update = update_zene(zene_id, "cim", cim);
@@ -223,7 +224,7 @@ const updateMusic = async (req, res) => {
           console.log(err);
           return res
             .status(500)
-            .json({ error: "Hiba történt a fájl mentésekor" });
+            .json({ err: "Hiba történt a fájl mentésekor" });
         }
       });
       const [rows] = await pool.query(
@@ -240,24 +241,5 @@ const updateMusic = async (req, res) => {
 
   return res.status(201).json(eredmenyek);
 };
-const bestOfArtists = async (req, res) => {
-  let sorok = [];
-  const [rows] = await pool.query(
-    `select * from zenek where zenek.eloado in (select nev from legjobbak);`
-  );
-  if (rows.length > 0) {
-    for (let i = 0; i < rows.length; i++) {
-      sorok[i] = {};
-      sorok[i].id = rows[i].id;
-      sorok[i].cim = rows[i].cim;
-      sorok[i].eloado = rows[i].eloado;
-      sorok[i].mufaj = rows[i].mufaj;
-      sorok[i].hossz = rows[i].hossz;
-      sorok[i].kiadas = rows[i].kiadas;
-      const data = await fs.readFile(rows[i].elokep);
-      sorok[i].elokep = data.toString("base64");
-    }
-  }
-  return res.status(200).json(sorok);
-};
-export { addMusic, getMusic, deleteMusic, updateMusic, bestOfArtists };
+
+export { addMusic, getMusic, deleteMusic, updateMusic };

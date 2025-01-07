@@ -17,7 +17,7 @@ app.use(express.json({ limit: "10mb" }));
 
 app.use("/users", users);
 app.use("/music", music);
-app.use("/best", best);
+app.use("", best);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(port, () => console.log(`Server is running on port ${port}!`));

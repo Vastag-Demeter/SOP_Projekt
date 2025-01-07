@@ -5,12 +5,21 @@ info:
   description: A ZeneStreaming dokumentációja
 servers:
   - url: http://localhost:3000
-    description: Az éles szerver
+
+tags:
+  - name: Felhasználók
+    description: Felhasználók kezelése
+  - name: Zenék
+    description: Zenék kezelése
+  - name: Legjobbak
+    description: A legjobb előadók
 paths:
   /users/register:
     post:
+      tags:
+        - Felhasználók
       summary: Felhasználó regisztrálása
-      description: Új felhasználó felvétele a rendszerbe
+      description: Új felhasználó felvétele a rendszerbe.
       requestBody:
         required: true
         content:
@@ -27,10 +36,9 @@ paths:
                 jelszo:
                   type: string
                   example: 123
-
       responses:
         "201":
-          description: A regisztráció sikeres
+          description: A regisztráció sikeres.
           content:
             application/json:
               schema:
@@ -40,7 +48,7 @@ paths:
                     type: string
                     example: "A regisztráció sikeres"
         "400":
-          description: Hibás kérés (Hiányzó vagy érvénytelen adatok)
+          description: Hibás kérés (Hiányzó vagy érvénytelen adatok).
           content:
             application/json:
               schema:
@@ -50,7 +58,7 @@ paths:
                     type: string
                     example: "Nincs minden adat megadva a regisztrációhoz!"
         "406":
-          description: Már van regisztrált felhasználó az email címmel
+          description: Már van regisztrált felhasználó az email címmel.
           content:
             application/json:
               schema:
@@ -60,7 +68,7 @@ paths:
                     type: string
                     example: Már van ilyen email címmel regisztrált felhasználó!
         "500":
-          description: A regisztráció sikertelen
+          description: A regisztráció sikertelen.
           content:
             application/json:
               schema:
@@ -68,4 +76,504 @@ paths:
                 properties:
                   err:
                     type: string
-                    example: A regisztrráció sikertelen!
+                    example: A regisztráció sikertelen!
+  /users/login:
+    post:
+      tags:
+        - Felhasználók
+      summary: Felhasználó bejelentkezése
+      description: A felhasználó bejelentkezik és kap egy JWT Token-t.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: teszt@teszt
+                jelszo:
+                  type: string
+                  example: 123
+      responses:
+        "200":
+          description: A bejelentkezés sikeres
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiVGVzenQgRWxlayIsImlhdCI6MTczNjI0NDY4MiwiZXhwIjoxNzM2MjQ2NDgyfQ.8LvdSxt2QnHBWVoZ5tgiY3uq5-oLssgtBhAF9Baax7E
+        "400":
+          description: Hibás kérés (Hiányzó vagy érvénytelen adat).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Minden adatot meg kell adni!
+        "406":
+          description: Nem található felhasználó a megadott email címmel.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Nem található felhasználó a megadott email címmel!
+  /users/logout:
+    delete:
+      tags:
+        - Felhasználók
+      summary: A felhasználó kijelentkezése
+      description: A felhasználó kijelentkezik, majd a token törlésre kerül.
+      responses:
+        "202":
+          description: A kijelentkezés sikeres.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: Kijelentkezve!
+        "401":
+          description: A felhasználó nincs bejelentkezve.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Nincs bejelentkezve!
+  /music/getMusic:
+    get:
+      tags:
+        - Zenék
+      summary: Zenék lekérése
+      description: Az összes zene lekérése.
+      responses:
+        "200":
+          description: A zenék lekérése sikeres.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    cim:
+                      type: string
+                      example: "Valami"
+                    eloado:
+                      type: string
+                      example: "Valaki"
+                    mufaj:
+                      type: string
+                      example: "POP"
+                    hossz:
+                      type: string
+                      example: "00:03:00"
+                    kiadas:
+                      type: string
+                      example: "2025.01.01"
+                    elokep:
+                      type: string
+                      example: ./Elokepek/Eloado-Zene.png
+  /music/addMusic:
+    post:
+      tags:
+        - Zenék
+      summary: Zene hozzáadása
+      description: Új zene hozzáadása a rendszerhez.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cim:
+                  type: string
+                  example: Valami
+                eloado:
+                  type: string
+                  example: Valaki
+                mufaj:
+                  type: string
+                  example: POP
+                hossz:
+                  type: string
+                  example: 00:03:00
+                kiadas:
+                  type: string
+                  example: 2024.01.01
+                elokep:
+                  type: string
+                  example: Egy Base64 kód
+      responses:
+        "201":
+          description: A zene felkerült a rendszerbe.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: Sikeresen felkerült a rendszerbe!
+        "400":
+          description: Hibás kérés (Hiányzó vagy érvénytelen adat).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Adja meg a címét!
+        "406":
+          description: Már van zene a megadott előadóval és címmel.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Már van ilyen előadó, ilyen címmel a rendszerben!
+        "500":
+          description: Hiba történt a szerveren.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: A létrehozás sikertelen!
+  /music/deleteMusic/{id}:
+    delete:
+      tags:
+        - Zenék
+      summary: Zene törlése
+      description: Zene törlése a rendszerből.
+      parameters:
+        - name: id
+          in: path
+          description: A zene azonosítója
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: A törlés sikeres.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: A törlés sikeres!
+        "400":
+          description: Hibás kérés (Hiányzó vagy érvénytelen adat).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Adja meg a zene id-jét!
+        "406":
+          description: Nincs zene a rendszerben a megadott azonosítóval.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Nem található zene a megadott id-vel!
+  /music/updateMusic:
+    put:
+      tags:
+        - Zenék
+      summary: Meglévő Zene frissítése
+      description: Meglévő zene frissítése a megadott id és frissítendő adatok alapján.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                eloado:
+                  type: string
+                  example: Valaki
+                cim:
+                  type: string
+                  example: Valami
+      responses:
+        "201":
+          description: A módosítás sikeres.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: A frissítés sikeres
+        "400":
+          description: Hibás kérés, nincs megadva id, vagy nem megfelelő.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Adja meg a zene id-jét!
+        "406":
+          description: Nincs zene a rendszerben a megadott id-vel.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Nincs zene a megadott id-vel!
+
+        "500":
+          description: Szerverhiba.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Hiba a fájl mentésekor.
+  /getBests:
+    get:
+      tags:
+        - Legjobbak
+      summary: Legjobb előadók lekérése
+      description: Lekéri a legjobb előadókat a rendszerből.
+      responses:
+        "200":
+          description: A lekérés sikeres.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    nev:
+                      type: string
+                      example: Pityu
+  /addBest:
+    post:
+      tags:
+        - Legjobbak
+      summary: Új előadó hozzáadása
+      description: Új előadó hozzáadása a legjobb előadókhoz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nev:
+                  type: string
+                  example: Jimmy
+      responses:
+        "201":
+          description: Az előadó felkerült a rendszerbe.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: Az előadó sikeresen felkerült a rendszerbe!
+        "400":
+          description: Nincs megadva a név.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Meg kell adnia a nevet!
+        "406":
+          description: Az előadó már szerepel a rendszerben.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Ez az előadó már hozzá van adva legjobbakhoz!
+        "500":
+          description: Szerverhiba merült fel.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Az előadót nem sikerült felvinni a rendszerbe!
+  /deleteBest/{nev}:
+    delete:
+      tags:
+        - Legjobbak
+      summary: Legjobb előadótörlése
+      description: Az előadó törlése a legjobbak közül.
+      parameters:
+        - name: nev
+          in: path
+          description: Az előadó neve, akit törölni kell
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: A törlés sikeres.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: A törlés sikeres!
+        "400":
+          description: Nincs megadva az előadó neve.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Adja meg az előadó nevét!
+        "406":
+          description: Nincs ilyen előadó a rendszerben.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Nem található ilyen előadó!
+  /updateBest:
+    put:
+      tags:
+        - Legjobbak
+      summary: Legjobb előadó frissítése
+      description: Előadó frissítése a legjobbak közül.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                regi_nev:
+                  type: string
+                  example: Jimmy
+                uj_nev:
+                  type: string
+                  example: Zámbó Jimmy
+      responses:
+        "202":
+          description: A módosítás sikeres.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: A módosítás sikeres!
+        "400":
+          description: Nincs megadva vagy a régi, vagy az új név.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Adja meg az előadó régi nevét!
+        "406":
+          description: Nem található az előadó.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err:
+                    type: string
+                    example: Nem található ilyen előadó!
+  /bestofartists:
+    get:
+      tags:
+        - Legjobbak
+      summary: Legjobb előadók zenéi
+      description: A legjobb előadók zenéit kéri le.
+      responses:
+        "200":
+          description: A zenék lekérése sikeres.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    cim:
+                      type: string
+                      example: "Valami"
+                    eloado:
+                      type: string
+                      example: "Valaki"
+                    mufaj:
+                      type: string
+                      example: "POP"
+                    hossz:
+                      type: string
+                      example: "00:03:00"
+                    kiadas:
+                      type: string
+                      example: "2025.01.01"
+                    elokep:
+                      type: string
+                      example: ./Elokepek/Eloado-Zene.png

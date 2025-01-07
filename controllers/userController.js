@@ -36,13 +36,13 @@ const login = async (req, res) => {
   const jelszo = req.body.jelszo;
 
   if (!email || !jelszo)
-    return res.status(406).json({ err: "Minden adatot meg kell adni!" });
+    return res.status(400).json({ err: "Minden adatot meg kell adni!" });
 
   const query = `select * from felhasznalok where email = '${email}'`;
   let [rows] = await pool.query(query);
   if (rows.length == 0)
     return res
-      .status(400)
+      .status(406)
       .json({ err: "Nem található felhasználó a megadott email címmel!" });
 
   if (!(await bcrypt.compare(jelszo, rows[0].jelszo)))
@@ -62,9 +62,11 @@ const login = async (req, res) => {
 };
 
 const logout = async (req, res) => {
+  const user = req.user.nev;
+  if (!user) return res.status(401).json({ err: "Nincs bejelentkezve!" });
   res.cookie("jwt", "", { maxAge: 0 });
-  console.log(`${req.user.name} has signed out!`);
-  return res.status(202).json({ msg: "Token törölve!" });
+  console.log(`${user} has signed out!`);
+  return res.status(202).json({ msg: "Kijelentkezve!" });
 };
 
 export { register, login, logout };
