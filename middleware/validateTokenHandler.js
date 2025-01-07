@@ -6,7 +6,7 @@ const validateToken = async (req, res, next) => {
   const cookie = req.cookies["jwt"];
 
   if (!cookie) {
-    return res.status(401).json({ err: "Nincs tokened!" });
+    return res.status(401).json({ err: "Jelentkezzen be!" });
   }
 
   jwt.verify(cookie, process.env.ACCESS_TOKEN_SECRET, (err, claims) => {
