@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: localhost
--- Létrehozás ideje: 2025. Jan 05. 14:29
+-- Létrehozás ideje: 2025. Jan 07. 16:05
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -37,17 +37,27 @@ CREATE TABLE `felhasznalok` (
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `Zenek`
+-- Tábla szerkezet ehhez a táblához `legjobbak`
 --
 
-CREATE TABLE `Zenek` (
+CREATE TABLE `legjobbak` (
+  `nev` varchar(250) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `zenek`
+--
+
+CREATE TABLE `zenek` (
   `id` int(10) NOT NULL,
   `cim` varchar(250) NOT NULL,
   `eloado` varchar(250) NOT NULL,
   `mufaj` varchar(250) NOT NULL,
   `hossz` time NOT NULL,
   `kiadas` date NOT NULL,
-  `elokep` longblob NOT NULL
+  `elokep` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 --
@@ -61,9 +71,15 @@ ALTER TABLE `felhasznalok`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `Zenek`
+-- A tábla indexei `legjobbak`
 --
-ALTER TABLE `Zenek`
+ALTER TABLE `legjobbak`
+  ADD UNIQUE KEY `UQ_legjobbak` (`nev`);
+
+--
+-- A tábla indexei `zenek`
+--
+ALTER TABLE `zenek`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -74,13 +90,13 @@ ALTER TABLE `Zenek`
 -- AUTO_INCREMENT a táblához `felhasznalok`
 --
 ALTER TABLE `felhasznalok`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT a táblához `Zenek`
+-- AUTO_INCREMENT a táblához `zenek`
 --
-ALTER TABLE `Zenek`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `zenek`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
