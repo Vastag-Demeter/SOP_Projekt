@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: ZeneStreaming - OpenAPI 3.0
   version: 1.0.0
-  description: A ZeneStreaming dokumentációja
+  description: A ZeneStreaming OpenAPI dokumentációja. Lehetőség van a regisztrációra, bejelentkezésre. A új zenét, valamint legjobb előadót csak bejelentkezés után lehet felvinni, azonban lekérdezni bejelentkezés nélkül is le lehet.
 servers:
   - url: http://localhost:3000
 
@@ -29,7 +29,7 @@ paths:
               properties:
                 email:
                   type: string
-                  example: teszt@teszt
+                  example: teszt2@teszt
                 nev:
                   type: string
                   example: Teszt Elek
@@ -175,13 +175,13 @@ paths:
                       example: 1
                     cim:
                       type: string
-                      example: "Valami"
+                      example: "ZeneCím"
                     eloado:
                       type: string
-                      example: "Valaki"
+                      example: "Előadó"
                     mufaj:
                       type: string
-                      example: "POP"
+                      example: "Pop"
                     hossz:
                       type: string
                       example: "00:03:00"
@@ -190,7 +190,7 @@ paths:
                       example: "2025.01.01"
                     elokep:
                       type: string
-                      example: ./Elokepek/Eloado-Zene.png
+                      example: ./Elokepek/Elokep.jpg
   /music/addMusic:
     post:
       tags:
@@ -329,21 +329,27 @@ paths:
                 id:
                   type: integer
                   description: A zene id-je
+                  example: 0
                 cim:
                   type: string
                   description: A zene címe
+                  example: Cím
                 eloado:
                   type: string
                   description: A zene előadója
+                  example: Előadó
                 mufaj:
                   type: string
                   description: A zene műfaja
+                  example: Műfaj
                 hossz:
                   type: string
                   description: A zene hossza
+                  example: 00:03:00
                 kiadas:
                   type: string
                   description: A kiadás dátuma
+                  example: 2025.01.01
                 elokep:
                   type: string
                   format: binary
@@ -407,7 +413,7 @@ paths:
                   properties:
                     nev:
                       type: string
-                      example: Pityu
+                      example: Jimmy
   /addBest:
     post:
       tags:
@@ -580,13 +586,13 @@ paths:
                       example: 1
                     cim:
                       type: string
-                      example: "Valami"
+                      example: "Cím"
                     eloado:
                       type: string
-                      example: "Valaki"
+                      example: "Előadó"
                     mufaj:
                       type: string
-                      example: "POP"
+                      example: "Pop"
                     hossz:
                       type: string
                       example: "00:03:00"
@@ -595,4 +601,4 @@ paths:
                       example: "2025.01.01"
                     elokep:
                       type: string
-                      example: ./Elokepek/Eloado-Zene.png
+                      example: ./Elokepek/Elokep.png

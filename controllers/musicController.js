@@ -13,6 +13,16 @@ const addMusic = async (req, res) => {
   const hossz = req.body.hossz;
   let kiadas = req.body.kiadas;
   const elokep = req.file;
+  console.log(`Előkép: ${elokep.path}`);
+  if (!elokep) return res.status(400).json({ err: "Töltse fel az előképet!" });
+  if (!cim || !eloado || !mufaj || !hossz || !kiadas) {
+    fs.unlink(elokep.path, (err) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ err: "Hiba a fájl törlésekor!" });
+      }
+    });
+  }
   if (!cim) return res.status(400).json({ err: "Adja meg a címét!" });
   if (!eloado) return res.status(400).json({ err: "Adja meg az előadót!" });
   if (!mufaj) return res.status(400).json({ err: "Adja meg a műfajt!" });
@@ -31,8 +41,6 @@ const addMusic = async (req, res) => {
   const kiadas_format = `${kiadas.getFullYear()}.${String(
     kiadas.getMonth() + 1
   ).padStart(2, "0")}.${String(kiadas.getDate()).padStart(2, "0")}`;
-
-  if (!elokep) return res.status(400).json({ err: "Töltse fel az előképet!" });
 
   let query = `select * from zenek where eloado='${eloado}' and cim='${cim}';`;
   let [rows] = await pool.query(query);
