@@ -62,7 +62,7 @@ const login = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  const user = req.user.nev;
+  const user = req.user.name;
   if (!user) return res.status(401).json({ err: "Nincs bejelentkezve!" });
   res.cookie("jwt", "", { maxAge: 0 });
   console.log(`${user} has signed out!`);
